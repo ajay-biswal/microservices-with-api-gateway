@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: microservices
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  business:
+    build: ./businessLayer
+    container_name: business
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - PORT=5001
+      - DB_URI=postgresql://postgres:1234@postgres:5432/microservices
+      - GATEWAY_URL=http://gateway:5000
+      - JWT_SECRET=ac69e209fe73650ddbbb4ff8ceddfebe34e7dbc6a308a55faf18d797cdcdb429
+    ports:
+      - "5001:5001"
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    restart: always
+    depends_on:
+      - business
+    environment:
+      - PORT=5000
+      - JWT_SECRET=ac69e209fe73650ddbbb4ff8ceddfebe34e7dbc6a308a55faf18d797cdcdb429
+    ports:
+      - "5000:5000"
+
+volumes:
+  postgres_data:
