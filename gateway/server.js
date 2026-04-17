@@ -29,13 +29,7 @@ app.use(async (req, res) => {
 
     if (!target) return res.status(404).json({ message: "Route not found" });
 
-    console.log("👉 Forwarding headers:", {
-      "Content-Type": "application/json",
-      Authorization: req.headers.authorization,
-    });
-
-    console.log("👉 Incoming headers:", req.headers);
-    console.log("👉 Body:", req.body);
+    
 
     const response = await axios({
       method: req.method,
